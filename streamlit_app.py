@@ -1,5 +1,8 @@
 import streamlit as st
 import pandas as pd
+import json
+import os
+from predictions import get_predictions
 
 # Load symptoms and medical history data from CSV files
 symptoms_data = pd.read_csv('symptoms.csv')
@@ -7,22 +10,15 @@ symp_quest = pd.read_csv("questions.csv")
 # question keyword mapping
 df_quest_map = pd.read_csv("all_disease_unique_symptoms (1).csv")
 
-
 history_data = pd.read_csv('other_questions.csv')
 medical_history_data = history_data[history_data['Category'] == "medical history"]
 personal_info = history_data[history_data['Category'] == "personal info"]
 fam_medical_history_data = history_data[history_data['Category'] == "family medical history"]
 
-import json
 # read json file to extract answers list to questions
 f = open('release_evidences.json')
 data = json.load(f)
 
-# converting the json into required quest:answer dict mapping
-# quest_ans_dict = {
-#     item["question_en"]: [value["en"] for value in item["value_meaning"].values()]
-#     for item in data.values() if item["value_meaning"]
-# }
 quest_ans_dict = {}
 for item in data.values():
     if item["value_meaning"]:
@@ -71,7 +67,7 @@ age = st.number_input("Age", min_value=0)
 
 # Create radio buttons for gender
 gender = st.radio("Sex", ["Male", "Female"])
-####
+
 # storing
 st.session_state.final_responses['NAME'] = name
 st.session_state.final_responses['AGE'] = age
@@ -84,7 +80,6 @@ st.header("Symptoms")
 selected_symptoms = st.multiselect("Select the applicable symptoms:", symptoms_data['Symptoms'])
 # storing
 st.session_state.final_responses['symptoms'] = selected_symptoms
-###
 
 # Question 2: Select the questions related to symptoms
 st.header("Questions related to symptoms")
@@ -103,17 +98,11 @@ else:
 # storing
 st.session_state.final_responses['symptoms_quest'] = selected_symptoms_quest_new
 
-####################################
-# test dropdown
-# symptom quest answers
-
 # Initialize a session state to keep track of the current question and responses
 if 'responses' not in st.session_state:
     st.session_state.responses = {}
 if 'current_question' not in st.session_state:
     st.session_state.current_question = "Question 1"
-
-# st.header("Question and Answer Dropdowns")
 
 # Allow the user to select a question
 selected_question = st.selectbox("Select and answer the applicable symptom questions from the dropdown one by one:", list(filtered_symp_quest_dict.keys()))
@@ -121,23 +110,16 @@ selected_question = st.selectbox("Select and answer the applicable symptom quest
 if selected_question != st.session_state.current_question:
     st.session_state.current_question = selected_question
 
-# Display the selected question
-# st.write("You selected:", selected_question)
-
 # Create a dropdown for selecting an answer based on the selected question
 selected_answer = st.selectbox("Select an answer:", filtered_symp_quest_dict[st.session_state.current_question])
 
-# Display the selected answer
-# st.write("You selected:", selected_answer)
-
 # Store the user's response for the current question
-if st.button("Submit Response 1"):
+if st.button("Submit Symptoms Response"):
     current_responses = st.session_state.responses.get(st.session_state.current_question, [])
     if selected_answer not in current_responses:
         current_responses.append(selected_answer)
         st.session_state.responses[st.session_state.current_question] = current_responses
 
-# test
 st.session_state.final_responses['symptoms_quest_dropdown'] = []
 # Display the user's responses for each question
 st.write("Responses:")
@@ -178,7 +160,6 @@ else:
     selected_medical_history_new = ', '.join(keywords_list)
 
 st.session_state.final_responses['medical'] = selected_medical_history_new
-###
 
 # Question 3: Select family medical history
 st.header("Family medical history")
@@ -195,7 +176,6 @@ else:
     selected_fam_medical_history_new = ', '.join(keywords_list)
 
 st.session_state.final_responses['fam_medical'] = selected_fam_medical_history_new
-####
 
 # Question 4: Select personal info
 st.header("Personal information")
@@ -216,17 +196,13 @@ st.session_state.final_responses['personal'] = selected_personal_info_new
 #####################################
 # only 1 quest in personal info with dropdown answers
 # simple dropdown
-
 selected_question = st.selectbox("Select the applicable personal questions and answer from the dropdown one by one:", list(filtered_per_quest_dict.keys()))
-
-# Display the selected question
-# st.write("You selected:", selected_question)
 
 # Create a dropdown for selecting an answer based on the selected question
 selected_answer = st.selectbox("Select answer:", filtered_per_quest_dict[selected_question])
 
 # Button to submit the response
-if st.button("Submit Response 2"):
+if st.button("Submit Personal Response"):
     if selected_question != "Select a Question" and selected_answer:
         # Store the response or perform any necessary action
         st.write(f"Question: {selected_question}")
@@ -240,9 +216,6 @@ if st.button("Submit Response 2"):
         # You can add code to store responses in a database, file, or any other desired location
         st.session_state.final_responses['personal1'] = {selected_question:selected_answer}
 
-
-
-#####################
 # getting response in required format for model inference
 data = st.session_state.final_responses
 
@@ -275,12 +248,8 @@ try:
     formatted_string = formatted_string.replace("symptoms_quest_dropdown is ", "").replace("symptoms_quest is ", "").replace("personal is ", "").replace("medical is ", "").replace("fam_", "")
     new_str = ", ".join(formatted_string.split("\n"))
     
-    # final_str = " ".join(new_str.split())
     st.session_state.final_str = " ".join(new_str.split())
 
-    # temp handling
-    # final_str = final_str.replace(", , , , , ,", "")
-    # Split the input string by commas
     parts = st.session_state.final_str.split(', ')
 
     # Filter out empty elements (consecutive commas) and join with a single comma
@@ -292,8 +261,7 @@ except Exception as e:
     print("all questions are not yet answered")
     st.session_state.final_str = ""
 
-st.write(f"final_response: {st.session_state.final_str}")
-
+st.write(f"Final Response: {st.session_state.final_str}")
 
 # Predictions
 st.header("Disease Predictions")
@@ -305,7 +273,6 @@ if "disease_data" not in st.session_state:
 
 if st.button("Get Predictions"):
     if len(st.session_state.final_str) != 0:
-        from predictions import get_predictions
         disease_pred = get_predictions(st.session_state.final_str)
 
         final_disease_pred = [f'{item[0]}: {item[1]*100:.5f}' for item in disease_pred]
@@ -333,7 +300,6 @@ if "data_to_write" not in st.session_state:
 
 if len(st.session_state.disease_data) > 0:
     if st.button("Write data to CSV"):
-
         # store data for writing to csv after pred
         patient_id = st.session_state.final_responses['NAME'] + "_" + str(st.session_state.final_responses['AGE'])
         patient_string = st.session_state.final_str
@@ -369,33 +335,19 @@ if len(st.session_state.disease_data) > 0:
             st.session_state.data_to_write['Incorrect'] = ["Yes"]
         
         st.session_state.data_to_write["Feedback"] = [st.session_state.final_responses["feedback"]]
-        # st.write(st.session_state.data_to_write)
         
         df = pd.DataFrame(st.session_state.data_to_write)
         
         st.write(df)
-        import os
         file_path = 'verify_predictions.csv'
         if not os.path.exists(file_path):
             df.to_csv(file_path, index=False)
         else:
             df.to_csv(file_path, index=False, mode='a', header=False)
 
-        # df.to_csv('verify_predictions.csv', index=False, mode='a', header="False")
         st.success("Data saved to CSV file 'verify_predictions.csv'")
         
-        st.write("END")
-
-        ###
-        # if st.button('Download CSV Data'):
-        #     # Set the filename and data for the CSV file
-        #     csv_filename = 'verify_predictions.csv'
-        #     csv_data = df.to_csv(index=False)
-
-        #     # Create a link for downloading the CSV file
-        #     st.markdown(f'<a href="data:file/csv;base64,{csv_data}" download="{csv_filename}">Click here to download the CSV file</a>', unsafe_allow_html=True)
-
-        #@st.experimental_memo
+        # Downloading the csv data
         @st.cache_data
         def convert_df(df):
             return df.to_csv(index=False).encode('utf-8')
@@ -404,10 +356,10 @@ if len(st.session_state.disease_data) > 0:
         csv = convert_df(df_updated)
 
         st.download_button(
-            "Press to Download CSV",
+            "Download CSV",
             csv,
             "file.csv",
             "text/csv",
             key='download-csv'
             )
-##########
+

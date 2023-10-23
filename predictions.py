@@ -1,11 +1,9 @@
 import pandas as pd
-#import numpy as np
 import torch
 import pickle
 from transformers import AutoTokenizer, AutoModel
 from transformers import BertTokenizer, BertModel
 from sklearn.metrics.pairwise import cosine_similarity
-#from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import streamlit as st
 
 sef = open("symptoms_clinicalbert_embeddings_49_PD.pkl", 'rb')
