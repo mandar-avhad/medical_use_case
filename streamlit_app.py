@@ -89,7 +89,8 @@ selected_symptoms_quest = st.multiselect("Select all the applicable symptom ques
 
 # mapping the required keyword
 if len(selected_symptoms_quest) == 0:
-    selected_symptoms_quest_new = []
+    # handling exceptions if no questions answered
+    selected_symptoms_quest_new = ""
 else:
     # selected_symptoms_quest_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_symptoms_quest[0]]['KEYWORD'].iloc[0]
     filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_symptoms_quest)]
@@ -153,6 +154,10 @@ for question, answers in st.session_state.responses.items():
     # final_responses['symptoms_quest_dropdown'] = {question:answers} 
     final_responses['symptoms_quest_dropdown'] = existing_list
 
+# handling exceptions if no questions answered
+if len(final_responses['symptoms_quest_dropdown']) == 0:
+    final_responses['symptoms_quest_dropdown'] = ""
+
 #########################################
 
 # Question 2: Select medical history
@@ -161,7 +166,8 @@ selected_medical_history = st.multiselect("Select and answer the medical history
 
 # mapping the required keyword
 if len(selected_medical_history) == 0:
-    selected_medical_history_new = []
+    # handling exceptions if no questions answered
+    selected_medical_history_new = ""
 else:
     # selected_medical_history_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_medical_history[0]]['KEYWORD'].iloc[0]
     filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_medical_history)]
@@ -177,7 +183,8 @@ selected_fam_medical_history = st.multiselect("Select and answer the family medi
 
 # mapping the required keyword
 if len(selected_fam_medical_history) == 0:
-    selected_fam_medical_history_new = []
+    # handling exceptions if no questions answered
+    selected_fam_medical_history_new = ""
 else:
     # selected_fam_medical_history_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_fam_medical_history[0]]['KEYWORD'].iloc[0]
     filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_fam_medical_history)]
@@ -193,7 +200,8 @@ selected_personal_info = st.multiselect("Select and answer the personal informat
 
 # mapping the required keyword
 if len(selected_personal_info) == 0:
-    selected_personal_info_new = []
+    # handling exceptions if no questions answered
+    selected_personal_info_new = "" # []
 else:
     # selected_personal_info_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_personal_info[0]]['KEYWORD'] # .iloc[0]
     filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_personal_info)]
@@ -257,9 +265,19 @@ for key, value in data.items():
 try:
     # Join the formatted key-value pairs with newlines
     formatted_string = "\n".join(result)
-    formatted_string = formatted_string.replace("symptoms_quest is ", "").replace("personal is ", "").replace("medical is ", "").replace("fam_", "")
+    formatted_string = formatted_string.replace("symptoms_quest_dropdown is ", "").replace("symptoms_quest is ", "").replace("personal is ", "").replace("medical is ", "").replace("fam_", "")
     new_str = ", ".join(formatted_string.split("\n"))
     final_str = " ".join(new_str.split())
+
+    # temp handling
+    # final_str = final_str.replace(", , , , , ,", "")
+    # Split the input string by commas
+    parts = final_str.split(', ')
+
+    # Filter out empty elements (consecutive commas) and join with a single comma
+    output_string = ', '.join(filter(None, parts))
+    final_str = output_string.replace(", ,", "")
+
 except Exception as e:
     print(e, "----")
     print("all questions are not yet answered")
