@@ -1,0 +1,115 @@
+﻿Question_ID,Questions,Category
+1,Do you have a chronic obstructive pulmonary disease (COPD)?,medical history
+2,Do you have severe Chronic Obstructive Pulmonary Disease (COPD)?,medical history
+3,Do you smoke cigarettes?,personal info
+4,Do you work in agriculture?,personal info
+5,Do you work in construction?,personal info
+6,Do you work in the mining sector?,personal info
+7,Have you ever been diagnosed with gastroesophageal reflux?,medical history
+8,Have you had one or several flare ups of chronic obstructive pulmonary disease (COPD) in the past year?,medical history
+9,Have you traveled out of the country in the last 4 weeks?,personal info
+10,Do you regularly take stimulant drugs?,personal info
+11,"Have you been treated in hospital recently for nausea, agitation, intoxication or aggressive behavior and received medication via an intravenous or intramuscular route?",medical history
+12,Have you started or taken any antipsychotic medication within the last 7 days?,medical history
+13,Do you attend or work in a daycare?,personal info
+14,Do you live with 4 or more people?,personal info
+15,Are you currently being treated or have you recently been treated with an oral antibiotic for an ear infection?,medical history
+16,Are your vaccinations up to date?,personal info
+17,Do you currently undergo dialysis?,medical history
+18,Do you have heart failure?,medical history
+19,Do you have high blood pressure or do you take medications to treat high blood pressure?,medical history
+20,Have you ever had a heart attack or do you have angina (chest pain)?,medical history
+21,Have you ever had fluid in your lungs?,medical history
+22,Are you more likely to develop common allergies than the general population?,medical history
+23,Do you have a deviated nasal septum?,medical history
+24,Do you have asthma or have you ever had to use a bronchodilator in the past?,medical history
+25,Do you have polyps in your nose?,medical history
+26,Have you ever had pneumonia?,medical history
+27,"Do you have any close family members who suffer from allergies (any type), hay fever or eczema?",family medical history
+28,Do you have any family members who have asthma?,family medical history
+29,Do you live in in a big city?,personal info
+30,Do you have a known severe food allergy?,medical history
+31,Have you been in contact with or ate something that you have an allergy to?,medical history
+32,Are you taking any new oral anticoagulants ((NOACs)?,medical history
+33,Do you have a poor diet?,personal info
+34,Do you have any family members who have been diagnosed with anemia?,family medical history
+35,Do you have chronic kidney failure?,medical history
+36,Do you have very abundant or very long menstruation periods?,medical history
+37,Do you think you are pregnant or are you currently pregnant?,medical history
+38,Have you ever had a diagnosis of anemia?,medical history
+39,"Is your BMI less than 18.5, or are you underweight?",personal info
+40,Are you significantly overweight compared to people of the same height as you?,personal info
+41,Do you have a known heart defect?,medical history
+42,Do you have a known issue with one of your heart valves?,medical history
+43,Do you have diabetes?,medical history
+44,Have you been diagnosed with hyperthyroidism?,medical history
+45,Do you drink alcohol excessively or do you have an addiction to alcohol?,personal info
+46,Are you immunosuppressed?,medical history
+47,Are you of Asian descent?,personal info
+48,Do you have Rheumatoid Arthritis?,medical history
+49,Do you have cystic fibrosis?,medical history
+50,Do you suffer from Crohnâ€™s disease or ulcerative colitis (UC)?,medical history
+51,Do you live in a rural area?,personal info
+52,Do you live in the suburbs?,personal info
+53,Does your mother suffer from asthma?,family medical history
+54,Are you exposed to secondhand cigarette smoke on a daily basis?,personal info
+55,Have you been diagnosed with chronic sinusitis?,medical history
+56,Have you been hospitalized for an asthma attack in the past year?,medical history
+57,Have you had 2 or more asthma attacks in the past year?,medical history
+58,"Did you previously, or do you currently, have any weakness/paralysis in one or more of your limbs or in your face?",medical history
+59,Do you take medication that dilates your blood vessels?,medical history
+60,Have any of your family members been diagnosed with cluster headaches?,family medical history
+61,Does the person have a whooping cough?,medical history
+62,Have you or any member of your family ever had croup?,family medical history
+63,"In the last month, have you been in contact with anyone infected with the Ebola virus?",medical history
+64,Do you have a hiatal hernia?,medical history
+65,"Have you had weakness or paralysis on one side of the face, which may still be present or completely resolved?",medical history
+66,Have you recently had a viral infection?,medical history
+67,Are you currently using intravenous drugs?,personal info
+68,Have you ever had a sexually transmitted infection?,medical history
+69,Have you had sexual intercourse with an HIV-positive partner in the past 12 months?,personal info
+70,Have you had unprotected sex with more than one partner in the last 6 months?,personal info
+71,Were you born prematurely or did you suffer any complication at birth?,medical history
+72,Are you currently taking or have you recently taken anti-inflammatory drugs (NSAIDs)?,medical history
+73,Do you have a known kidney problem resulting in an inability to retain proteins?,medical history
+74,Do you have liver cirrhosis?,medical history
+75,Do you take a calcium channel blockers (medication)?,medical history
+76,Do you take corticosteroids?,medical history
+77,Have you ever been diagnosed with obstructive sleep apnea (OSA)?,medical history
+78,Have you ever had deep vein thrombosis (DVT)?,medical history
+79,Have you ever had surgery to remove lymph nodes?,medical history
+80,Were you diagnosed with endocrine disease or a hormone dysfunction?,medical history
+81,Are there any members of your family who have been diagnosed myasthenia gravis?,family medical history
+82,Do you consume energy drinks regularly?,personal info
+83,Do you regularly drink coffee or tea?,personal info
+84,Have you recently taken decongestants or other substances that may have stimulant effects?,medical history
+85,Are there members of your family who have been diagnosed with pancreatic cancer?,family medical history
+86,Do you have chronic pancreatitis?,medical history
+87,Do any members of your immediate family have a psychiatric illness?,family medical history
+88,Do you suffer from chronic anxiety?,medical history
+89,Do you suffer from fibromyalgia?,medical history
+90,Have you ever been diagnosed with depression?,medical history
+91,Have you ever had a head trauma?,medical history
+92,Have you ever had a migraine or is a member of your family known to have migraines?,family medical history
+93,Have you ever had a pericarditis?,medical history
+94,Do you have Parkinsonâ€™s disease?,medical history
+95,Have you ever had a stroke?,medical history
+96,Have you had surgery within the last month?,medical history
+97,Are you a former smoker?,personal info
+98,Are you infected with the human immunodeficiency virus (HIV)?,medical history
+99,Do you have a problem with poor circulation?,medical history
+100,Do you have close family members who had a cardiovascular disease problem before the age of 50?,family medical history
+101,Do you have high cholesterol or do you take medications to treat high cholesterol?,medical history
+102,Do you currently take hormones?,medical history
+103,Do you have an active cancer?,medical history
+104,Do you have family members who have had lung cancer?,family medical history
+105,Are you consulting because you have high blood pressure?,medical history
+106,Did you have your first menstrual period before the age of 12?,medical history
+107,Have you breastfed one of your children for more than 9 months?,medical history
+108,Have you had any vaginal discharge?,medical history
+109,Did you eat dark-fleshed fish (such as tuna) or Swiss cheese before the reaction occurred?,personal info
+110,Have any of your family members ever had a pneumothorax?,family medical history
+111,Have you ever had a spontaneous pneumothorax?,medical history
+112,Are you being treated for osteoporosis?,medical history
+113,Do you have metastatic cancer?,medical history
+114,"Do you exercise regularly, 4 times per week or more?",personal info
