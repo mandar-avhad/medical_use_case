@@ -261,7 +261,8 @@ try:
     new_str = ", ".join(formatted_string.split("\n"))
     final_str = " ".join(new_str.split())
 except Exception as e:
-    print(e, "------------")
+    print(e, "----")
+    print("all questions are not yet answered")
     final_str = ""
 
 st.write(f"final_response: {final_str}")
@@ -269,15 +270,19 @@ st.write(f"final_response: {final_str}")
 # Predictions
 st.header("Disease Predictions")
 
-if st.button("Get Predictions") and len(final_str) != 0:
-    from predictions import get_predictions
-    disease_pred = get_predictions(final_str)
+if st.button("Get Predictions"):
+    if len(final_str) != 0:
+        from predictions import get_predictions
+        disease_pred = get_predictions(final_str)
 
-    final_disease_pred = [f'{item[0]}: {item[1]*100:.5f}' for item in disease_pred]
+        final_disease_pred = [f'{item[0]}: {item[1]*100:.5f}' for item in disease_pred]
 
-    st.subheader(f"Top 3 disease predictions:")
-    for item in final_disease_pred:
-        st.write(item)
+        st.subheader(f"Top 3 disease predictions:")
+        for item in final_disease_pred:
+            st.write(item)
+
+    else:
+        st.write("First fill the entire form and then get predictions")
 
 
 # Optionally, display the submitted responses
