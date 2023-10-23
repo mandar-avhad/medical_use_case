@@ -52,7 +52,10 @@ questions_to_remove = [key for key in filtered_per_quest_dict.keys() if key in p
 per_quest = personal_info[~personal_info['Questions'].isin(questions_to_remove)]
 #########
 
-final_responses = {}
+# final_responses = {}
+# Initialize a global variable to store the disease predictions
+if "st.session_state.final_responses" not in st.session_state:
+    st.session_state.final_responses = {}
 
 # Create a Streamlit app
 st.title("Diagnoseme")
@@ -70,9 +73,9 @@ age = st.number_input("Age", min_value=0)
 gender = st.radio("Sex", ["Male", "Female"])
 ####
 # storing
-final_responses['NAME'] = name
-final_responses['AGE'] = age
-final_responses['SEX'] = gender
+st.session_state.final_responses['NAME'] = name
+st.session_state.final_responses['AGE'] = age
+st.session_state.final_responses['SEX'] = gender
 
 ######################
 
@@ -80,7 +83,7 @@ final_responses['SEX'] = gender
 st.header("Symptoms")
 selected_symptoms = st.multiselect("Select the applicable symptoms:", symptoms_data['Symptoms'])
 # storing
-final_responses['symptoms'] = selected_symptoms
+st.session_state.final_responses['symptoms'] = selected_symptoms
 ###
 
 # Question 2: Select the questions related to symptoms
@@ -98,7 +101,7 @@ else:
     selected_symptoms_quest_new = ', '.join(keywords_list)
     
 # storing
-final_responses['symptoms_quest'] = selected_symptoms_quest_new
+st.session_state.final_responses['symptoms_quest'] = selected_symptoms_quest_new
 
 ####################################
 # test dropdown
@@ -135,7 +138,7 @@ if st.button("Submit Response 1"):
         st.session_state.responses[st.session_state.current_question] = current_responses
 
 # test
-final_responses['symptoms_quest_dropdown'] = []
+st.session_state.final_responses['symptoms_quest_dropdown'] = []
 # Display the user's responses for each question
 st.write("Responses:")
 for question, answers in st.session_state.responses.items():
@@ -146,17 +149,17 @@ for question, answers in st.session_state.responses.items():
     question_new = df_quest_map[df_quest_map['EVIDENCE'] == question]['KEYWORD'].iloc[0]
 
     # Access the list within the 'symptoms_quest_dropdown' dictionary
-    existing_list = final_responses['symptoms_quest_dropdown']
+    existing_list = st.session_state.final_responses['symptoms_quest_dropdown']
     # # Add the new dictionary to the list
     existing_list.append({question_new:answers})
     
     # storing
-    # final_responses['symptoms_quest_dropdown'] = {question:answers} 
-    final_responses['symptoms_quest_dropdown'] = existing_list
+    # st.session_state.final_responses['symptoms_quest_dropdown'] = {question:answers} 
+    st.session_state.final_responses['symptoms_quest_dropdown'] = existing_list
 
 # handling exceptions if no questions answered
-if len(final_responses['symptoms_quest_dropdown']) == 0:
-    final_responses['symptoms_quest_dropdown'] = ""
+if len(st.session_state.final_responses['symptoms_quest_dropdown']) == 0:
+    st.session_state.final_responses['symptoms_quest_dropdown'] = ""
 
 #########################################
 
@@ -174,7 +177,7 @@ else:
     keywords_list = filtered_df['KEYWORD'].tolist()
     selected_medical_history_new = ', '.join(keywords_list)
 
-final_responses['medical'] = selected_medical_history_new
+st.session_state.final_responses['medical'] = selected_medical_history_new
 ###
 
 # Question 3: Select family medical history
@@ -191,7 +194,7 @@ else:
     keywords_list = filtered_df['KEYWORD'].tolist()
     selected_fam_medical_history_new = ', '.join(keywords_list)
 
-final_responses['fam_medical'] = selected_fam_medical_history_new
+st.session_state.final_responses['fam_medical'] = selected_fam_medical_history_new
 ####
 
 # Question 4: Select personal info
@@ -208,7 +211,7 @@ else:
     keywords_list = filtered_df['KEYWORD'].tolist()
     selected_personal_info_new = ', '.join(keywords_list)
 
-final_responses['personal'] = selected_personal_info_new
+st.session_state.final_responses['personal'] = selected_personal_info_new
 
 #####################################
 # only 1 quest in personal info with dropdown answers
@@ -235,13 +238,13 @@ if st.button("Submit Response 2"):
         selected_question = df_quest_map[df_quest_map['EVIDENCE'] == selected_question]['KEYWORD'].iloc[0]
 
         # You can add code to store responses in a database, file, or any other desired location
-        final_responses['personal1'] = {selected_question:selected_answer}
+        st.session_state.final_responses['personal1'] = {selected_question:selected_answer}
 
 
 
 #####################
 # getting response in required format for model inference
-data = final_responses
+data = st.session_state.final_responses
 
 result = []
 
@@ -262,36 +265,48 @@ for key, value in data.items():
     else:
         result.append(f"{key} is {str(value)}")
 
+# Initialize a global variable to store the disease predictions
+if "final_str" not in st.session_state:
+    st.session_state.final_str = ""
+
 try:
     # Join the formatted key-value pairs with newlines
     formatted_string = "\n".join(result)
     formatted_string = formatted_string.replace("symptoms_quest_dropdown is ", "").replace("symptoms_quest is ", "").replace("personal is ", "").replace("medical is ", "").replace("fam_", "")
     new_str = ", ".join(formatted_string.split("\n"))
-    final_str = " ".join(new_str.split())
+    
+    # final_str = " ".join(new_str.split())
+    st.session_state.final_str = " ".join(new_str.split())
 
     # temp handling
     # final_str = final_str.replace(", , , , , ,", "")
     # Split the input string by commas
-    parts = final_str.split(', ')
+    parts = st.session_state.final_str.split(', ')
 
     # Filter out empty elements (consecutive commas) and join with a single comma
     output_string = ', '.join(filter(None, parts))
-    final_str = output_string.replace(", ,", "")
+    st.session_state.final_str = output_string.replace(", ,", "")
 
 except Exception as e:
     print(e, "----")
     print("all questions are not yet answered")
-    final_str = ""
+    st.session_state.final_str = ""
 
-st.write(f"final_response: {final_str}")
+st.write(f"final_response: {st.session_state.final_str}")
+
 
 # Predictions
 st.header("Disease Predictions")
 
+# Initialize a global variable to store the disease predictions
+if "disease_data" not in st.session_state:
+    st.session_state.disease_data = []
+
+
 if st.button("Get Predictions"):
-    if len(final_str) != 0:
+    if len(st.session_state.final_str) != 0:
         from predictions import get_predictions
-        disease_pred = get_predictions(final_str)
+        disease_pred = get_predictions(st.session_state.final_str)
 
         final_disease_pred = [f'{item[0]}: {item[1]*100:.5f}' for item in disease_pred]
 
@@ -299,21 +314,76 @@ if st.button("Get Predictions"):
         for item in final_disease_pred:
             st.write(item)
 
+        # Store the predictions in the session state variable
+        st.session_state.disease_data = final_disease_pred
+
     else:
         st.write("First fill the entire form and then get predictions")
 
+if len(st.session_state.disease_data) > 0:
+    is_correct = st.radio("Predictions are:", ("Correct", "Incorrect"))
+    feedback = st.text_input("Provide feedback (optional) if incorrect predictions")
+    
+    st.session_state.final_responses["is_correct"] = is_correct
+    st.session_state.final_responses["feedback"] = feedback
 
-# Optionally, display the submitted responses
-# st.subheader("Submitted Responses")
-# You can add code to display stored responses here
+# Initialize a global variable to store the disease predictions
+if "data_to_write" not in st.session_state:
+    st.session_state.data_to_write = {}
 
+if len(st.session_state.disease_data) > 0:
+    if st.button("Write data to CSV"):
 
+        # store data for writing to csv after pred
+        patient_id = st.session_state.final_responses['NAME'] + "_" + str(st.session_state.final_responses['AGE'])
+        patient_string = st.session_state.final_str
 
+        # get label names
+        label_names = [item.split(': ')[0] for item in st.session_state.disease_data]
+        percent_list = [item.split(': ')[1] for item in st.session_state.disease_data]
+        
+        label_1 = label_names[0]
+        label_1_percent = percent_list[0]
 
+        label_2 = label_names[1]
+        label_2_percent = percent_list[1]
 
-###########
-# Display selected symptoms and medical history
-# st.write("Selected Symptoms:", selected_symptoms)
-# st.write("Selected Medical History:", selected_medical_history)
-# st.write("Selected Family Medical History:", selected_fam_medical_history)
-# st.write("Selected Personal Info:", selected_personal_info)
+        label_3 = label_names[2]
+        label_3_percent = percent_list[2]
+        
+        st.session_state.data_to_write = {}
+        st.session_state.data_to_write = {
+        "Patient_ID": [patient_id],
+        "Patient_String": [patient_string],
+        "Label_1": [label_1],
+        "Label_1%": [label_1_percent],
+        "Label_2": [label_2],
+        "Label_2%": [label_2_percent]
+        }
+
+        if st.session_state.final_responses["is_correct"] == "Correct":
+            st.session_state.data_to_write['Correct'] = ["Yes"]
+            st.session_state.data_to_write['Incorrect'] = ["No"]
+        else:
+            st.session_state.data_to_write['Correct'] = ["No"]
+            st.session_state.data_to_write['Incorrect'] = ["Yes"]
+        
+        st.session_state.data_to_write["Feedback"] = [st.session_state.final_responses["feedback"]]
+        # st.write(st.session_state.data_to_write)
+        
+        df = pd.DataFrame(st.session_state.data_to_write)
+        
+        st.write(df)
+        import os
+        file_path = 'verify_predictions.csv'
+        if not os.path.exists(file_path):
+            df.to_csv(file_path, index=False)
+        else:
+            df.to_csv(file_path, index=False, mode='a', header=False)
+
+        # df.to_csv('verify_predictions.csv', index=False, mode='a', header="False")
+        st.success("Data saved to CSV file 'predictions.csv'")
+        
+        st.write("END")
+
+##########
