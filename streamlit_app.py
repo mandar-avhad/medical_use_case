@@ -382,7 +382,7 @@ if len(st.session_state.disease_data) > 0:
             df.to_csv(file_path, index=False, mode='a', header=False)
 
         # df.to_csv('verify_predictions.csv', index=False, mode='a', header="False")
-        st.success("Data saved to CSV file 'predictions.csv'")
+        st.success("Data saved to CSV file 'verify_predictions.csv'")
         
         st.write("END")
 
@@ -400,11 +400,11 @@ if len(st.session_state.disease_data) > 0:
         def convert_df(df):
             return df.to_csv(index=False).encode('utf-8')
 
-
-        csv = convert_df(df)
+        df_updated = pd.read_csv("verify_predictions.csv")
+        csv = convert_df(df_updated)
 
         st.download_button(
-            "Press to Download",
+            "Press to Download CSV",
             csv,
             "file.csv",
             "text/csv",
