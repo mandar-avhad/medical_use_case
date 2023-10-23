@@ -386,4 +386,13 @@ if len(st.session_state.disease_data) > 0:
         
         st.write("END")
 
+        ###
+        if st.button('Download CSV Data'):
+            # Set the filename and data for the CSV file
+            csv_filename = 'verify_predictions.csv'
+            csv_data = df.to_csv(index=False)
+
+            # Create a link for downloading the CSV file
+            st.markdown(f'<a href="data:file/csv;base64,{csv_data}" download="{csv_filename}">Click here to download the CSV file</a>', unsafe_allow_html=True)
+
 ##########
