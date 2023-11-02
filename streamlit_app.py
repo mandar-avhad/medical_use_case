@@ -324,7 +324,9 @@ if len(st.session_state.disease_data) > 0:
         "Label_1": [label_1],
         "Label_1%": [label_1_percent],
         "Label_2": [label_2],
-        "Label_2%": [label_2_percent]
+        "Label_2%": [label_2_percent],
+        "Label_3": [label_3],
+        "Label_3%": [label_3_percent]
         }
 
         if st.session_state.final_responses["is_correct"] == "Correct":
