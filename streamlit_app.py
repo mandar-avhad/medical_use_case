@@ -234,7 +234,9 @@ elif 'symptoms_quest' not in data:
 elif 'symptoms_quest_dropdown' not in data:
     data['symptoms_quest_dropdown'] = ""
 
-formatted_string_1 = "AGE:{" + str(data['AGE']) + "} | SEX:{" + data['SEX'] + "} | Symptoms are:{" + ', '.join(data['symptoms']) + "} | Medical History is:{" + data['medical'] + "} | Personal Information is:{" + data['personal'] + "} | Family Medical History is:{" + data['fam_medical'] + "}"#  | Patient travelled to:{" + data['personal1']['travelled in last 4 weeks to'] + "}"
+# temp
+symptom_dict = {}
+symptom_dict['symptoms'] = data['symptoms']
 
 symptoms = data['symptoms_quest']
 dropdown_info = []
@@ -251,11 +253,28 @@ for item in data['symptoms_quest_dropdown']:
 
 formatted_string_2 = f"{symptoms} | {' | '.join(dropdown_info)}"
 
+# doing this to separate the symptoms questions and add them with comma separated symptoms
+# and keep only the dropdown symptoms in this
+
+formatted_string_list = formatted_string_2.split(" | ")
+symp_quest = formatted_string_list.pop(0)
+
+formatted_string_2 = ' | '.join(formatted_string_list)
+
+final_symptoms = symp_quest.split(', ')
+
+# Append the new_symptoms
+symptom_dict['symptoms'] += final_symptoms
+
+formatted_string_1 = "AGE:{" + str(data['AGE']) + "} | SEX:{" + data['SEX'] + "} | Symptoms are:{" + ', '.join(symptom_dict['symptoms']) + "} | Medical History is:{" + data['medical'] + "} | Personal Information is:{" + data['personal'] + "} | Family Medical History is:{" + data['fam_medical'] + "} | "#  | Patient travelled to:{" + data['personal1']['travelled in last 4 weeks to'] + "}"
+
+
 if 'personal1' in data and 'travelled in last 4 weeks to' in data['personal1']:
     formatted_string_3 = "| Patient travelled to:{" + data['personal1']['travelled in last 4 weeks to'] + "}"
 else:
     formatted_string_3 = ""
 
+# final string
 model_2_string = formatted_string_1 + formatted_string_2 + formatted_string_3
 
 # Initialize a global variable to store the disease predictions
