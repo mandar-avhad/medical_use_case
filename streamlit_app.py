@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import json
 import os
-from predictions import get_predictions
+from model_predictions import get_predictions
 
 # Load symptoms and medical history data from CSV files
 symptoms_data = pd.read_csv('symptoms.csv')
@@ -218,6 +218,56 @@ if st.button("Submit Personal Response"):
 
 # getting response in required format for model inference
 data = st.session_state.final_responses
+# st.write(f"og_dict:{data}")
+
+# doing this for getting the string for model 2
+if 'personal1' not in data:
+    data['personal1'] = ""
+elif 'medical' not in data:
+    data['medical'] = ""
+elif 'personal' not in data:   
+    data['personal'] = ""
+elif 'fam_medical' not in data:
+    data['fam_medical'] = ""
+elif 'symptoms_quest' not in data:
+    data['symptoms_quest'] = ""
+elif 'symptoms_quest_dropdown' not in data:
+    data['symptoms_quest_dropdown'] = ""
+
+formatted_string_1 = "AGE:{" + str(data['AGE']) + "} | SEX:{" + data['SEX'] + "} | Symptoms are:{" + ', '.join(data['symptoms']) + "} | Medical History is:{" + data['medical'] + "} | Personal Information is:{" + data['personal'] + "} | Family Medical History is:{" + data['fam_medical'] + "}"#  | Patient travelled to:{" + data['personal1']['travelled in last 4 weeks to'] + "}"
+
+symptoms = data['symptoms_quest']
+dropdown_info = []
+
+for item in data['symptoms_quest_dropdown']:
+    key, value = list(item.items())[0]
+    if isinstance(value, list):
+        # to convert items from int to str in list
+        value = [str(item) for item in value]
+        value_str = ', '.join(value)
+    else:
+        value_str = str(value)
+    dropdown_info.append(f"{key}:{{{value_str}}}")
+
+formatted_string_2 = f"{symptoms} | {' | '.join(dropdown_info)}"
+
+if 'personal1' in data and 'travelled in last 4 weeks to' in data['personal1']:
+    formatted_string_3 = "| Patient travelled to:{" + data['personal1']['travelled in last 4 weeks to'] + "}"
+else:
+    formatted_string_3 = ""
+
+model_2_string = formatted_string_1 + formatted_string_2 + formatted_string_3
+
+# Initialize a global variable to store the disease predictions
+if "final_str_2" not in st.session_state:
+    st.session_state.final_str_2 = ""
+
+st.session_state.final_str_2 = model_2_string
+
+# temp
+del data['personal1']
+# model 2 string end
+
 
 result = []
 
@@ -261,81 +311,147 @@ except Exception as e:
     print("all questions are not yet answered")
     st.session_state.final_str = ""
 
-st.write(f"Final Response: {st.session_state.final_str}")
+st.write(f"Model_1_input: {st.session_state.final_str}")
+st.write(f"Model_2_input: {st.session_state.final_str_2}")
 
 # Predictions
 st.header("Disease Predictions")
 
 # Initialize a global variable to store the disease predictions
-if "disease_data" not in st.session_state:
-    st.session_state.disease_data = []
+if "disease_data_M1" not in st.session_state:
+    st.session_state.disease_data_M1 = []
+if "disease_data_M2" not in st.session_state:
+    st.session_state.disease_data_M2 = []
 
+# Add a dropdown to select a model
+# selected_model = st.selectbox("Select a Model", ['bert', 'all_mini'])
+# st.write("Two Models Selected: bert, all_mini")
 
 if st.button("Get Predictions"):
     if len(st.session_state.final_str) != 0:
-        disease_pred = get_predictions(st.session_state.final_str)
+        # disease_pred = get_predictions(st.session_state.final_str)
+        # by default, do predictions for both the models, don't give options
 
-        final_disease_pred = [f'{item[0]}: {item[1]*100:.5f}' for item in disease_pred]
+        # M1 pred
+        selected_model = "bert"
+        disease_pred_M1 = get_predictions(st.session_state.final_str, selected_model)
 
-        st.subheader(f"Top 3 disease predictions:")
-        for item in final_disease_pred:
-            st.write(item)
+        final_disease_pred_M1 = [f'{item[0]}: {item[1]*100:.5f}' for item in disease_pred_M1]
+
+        # st.subheader(f"Top 3 disease predictions by Model 1: bert:")
+        # for item in final_disease_pred_M1:
+        #     st.write(item)
 
         # Store the predictions in the session state variable
-        st.session_state.disease_data = final_disease_pred
+        st.session_state.disease_data_M1 = final_disease_pred_M1
+
+        #########
+        # M2 pred
+        selected_model = "all_mini"
+        disease_pred_M2 = get_predictions(st.session_state.final_str_2, selected_model)
+
+        final_disease_pred_M2 = [f'{item[0]}: {item[1]*100:.5f}' for item in disease_pred_M2]
+
+        # st.subheader(f"Top 3 disease predictions by Model 2: all_mini:")
+        # for item in final_disease_pred_M2:
+        #     st.write(item)
+
+        # Store the predictions in the session state variable
+        st.session_state.disease_data_M2 = final_disease_pred_M2
 
     else:
         st.write("First fill the entire form and then get predictions")
 
-if len(st.session_state.disease_data) > 0:
-    is_correct = st.radio("Predictions are:", ("Correct", "Incorrect"))
+
+if len(st.session_state.disease_data_M1) > 0:
+    st.subheader(f"Top 3 disease predictions by both the models:")
+    # creating df to display
+    data = {
+        'Model_1_Bert': [st.session_state.disease_data_M1[0], st.session_state.disease_data_M1[1], st.session_state.disease_data_M1[2]],
+        'Model_2_AllMini': [st.session_state.disease_data_M2[0], st.session_state.disease_data_M2[1], st.session_state.disease_data_M2[2]]
+    }
+    index_names = ['Label 1', 'Label 2', 'Label 3']
+    df = pd.DataFrame(data, index=index_names)
+    # table
+    st.table(df)
+
+if len(st.session_state.disease_data_M1) > 0:
+    is_correct_M1 = st.radio("Model 1 Predictions are:", ("Correct", "Incorrect"))
+    is_correct_M2 = st.radio("Model 2 Predictions are:", ("Correct", "Incorrect"))
     feedback = st.text_input("Provide feedback (optional) if incorrect predictions")
     
-    st.session_state.final_responses["is_correct"] = is_correct
+    st.session_state.final_responses["is_correct_M1"] = is_correct_M1
+    st.session_state.final_responses["is_correct_M2"] = is_correct_M2
     st.session_state.final_responses["feedback"] = feedback
 
 # Initialize a global variable to store the disease predictions
 if "data_to_write" not in st.session_state:
     st.session_state.data_to_write = {}
 
-if len(st.session_state.disease_data) > 0:
+if len(st.session_state.disease_data_M1) > 0:
     if st.button("Write data to CSV"):
         # store data for writing to csv after pred
         patient_id = st.session_state.final_responses['NAME'] + "_" + str(st.session_state.final_responses['AGE'])
-        patient_string = st.session_state.final_str
+        patient_string_M1 = st.session_state.final_str
+        patient_string_M2 = st.session_state.final_str_2
 
-        # get label names
-        label_names = [item.split(': ')[0] for item in st.session_state.disease_data]
-        percent_list = [item.split(': ')[1] for item in st.session_state.disease_data]
+        # get label names and percent for M1
+        label_names_M1 = [item.split(': ')[0] for item in st.session_state.disease_data_M1]
+        percent_list_M1 = [item.split(': ')[1] for item in st.session_state.disease_data_M1]
         
-        label_1 = label_names[0]
-        label_1_percent = percent_list[0]
+        label_1_M1 = label_names_M1[0]
+        label_1_percent_M1 = percent_list_M1[0]
 
-        label_2 = label_names[1]
-        label_2_percent = percent_list[1]
+        label_2_M1 = label_names_M1[1]
+        label_2_percent_M1 = percent_list_M1[1]
 
-        label_3 = label_names[2]
-        label_3_percent = percent_list[2]
+        label_3_M1 = label_names_M1[2]
+        label_3_percent_M1 = percent_list_M1[2]
         
+        # get label names and percent for M1
+        label_names_M2 = [item.split(': ')[0] for item in st.session_state.disease_data_M2]
+        percent_list_M2 = [item.split(': ')[1] for item in st.session_state.disease_data_M2]
+        
+        label_1_M2 = label_names_M2[0]
+        label_1_percent_M2 = percent_list_M2[0]
+
+        label_2_M2 = label_names_M2[1]
+        label_2_percent_M2 = percent_list_M2[1]
+
+        label_3_M2 = label_names_M2[2]
+        label_3_percent_M2 = percent_list_M2[2]
+
         st.session_state.data_to_write = {}
         st.session_state.data_to_write = {
         "Patient_ID": [patient_id],
-        "Patient_String": [patient_string],
-        "Label_1": [label_1],
-        "Label_1%": [label_1_percent],
-        "Label_2": [label_2],
-        "Label_2%": [label_2_percent],
-        "Label_3": [label_3],
-        "Label_3%": [label_3_percent]
+        "Patient_String_M1": [patient_string_M1],
+        "Label_1_M1": [label_1_M1],
+        "Label_1%_M1": [label_1_percent_M1],
+        "Label_2_M1": [label_2_M1],
+        "Label_2%_M1": [label_2_percent_M1],
+        "Label_3_M1": [label_3_M1],
+        "Label_3%_M1": [label_3_percent_M1],
+        
+        "Patient_String_M2": [patient_string_M2],
+        "Label_1_M2": [label_1_M2],
+        "Label_1%_M2": [label_1_percent_M2],
+        "Label_2_M2": [label_2_M2],
+        "Label_2%_M2": [label_2_percent_M2],
+        "Label_3_M2": [label_3_M2],
+        "Label_3%_M2": [label_3_percent_M2]
         }
 
-        if st.session_state.final_responses["is_correct"] == "Correct":
-            st.session_state.data_to_write['Correct'] = ["Yes"]
-            st.session_state.data_to_write['Incorrect'] = ["No"]
-        else:
-            st.session_state.data_to_write['Correct'] = ["No"]
-            st.session_state.data_to_write['Incorrect'] = ["Yes"]
+        # comment below condition
+        # if st.session_state.final_responses["is_correct"] == "Correct":
+        #     st.session_state.data_to_write['Correct'] = ["Yes"]
+        #     st.session_state.data_to_write['Incorrect'] = ["No"]
+        # else:
+        #     st.session_state.data_to_write['Correct'] = ["No"]
+        #     st.session_state.data_to_write['Incorrect'] = ["Yes"]
         
+        st.session_state.data_to_write["Results_M1"] = [st.session_state.final_responses["is_correct_M1"]]
+        st.session_state.data_to_write["Results_M2"] = [st.session_state.final_responses["is_correct_M2"]]
+
         st.session_state.data_to_write["Feedback"] = [st.session_state.final_responses["feedback"]]
         
         df = pd.DataFrame(st.session_state.data_to_write)
