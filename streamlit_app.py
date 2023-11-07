@@ -8,7 +8,8 @@ from model_predictions import get_predictions
 symptoms_data = pd.read_csv('symptoms.csv')
 symp_quest = pd.read_csv("questions.csv")
 # question keyword mapping
-df_quest_map = pd.read_csv("all_disease_unique_symptoms (1).csv")
+# df_quest_map = pd.read_csv("all_disease_unique_symptoms (1).csv")
+df_quest_map = pd.read_csv("mapping_file_new 1.csv")
 
 history_data = pd.read_csv('other_questions.csv')
 medical_history_data = history_data[history_data['Category'] == "medical history"]
@@ -90,9 +91,9 @@ if len(selected_symptoms_quest) == 0:
     # handling exceptions if no questions answered
     selected_symptoms_quest_new = ""
 else:
-    # selected_symptoms_quest_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_symptoms_quest[0]]['KEYWORD'].iloc[0]
+    # selected_symptoms_quest_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_symptoms_quest[0]]['KEYWORD_PA'].iloc[0]
     filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_symptoms_quest)]
-    keywords_list = filtered_df['KEYWORD'].tolist()
+    keywords_list = filtered_df['KEYWORD_PA'].tolist()
     selected_symptoms_quest_new = ', '.join(keywords_list)
     
 # storing
@@ -128,7 +129,7 @@ for question, answers in st.session_state.responses.items():
     st.write(f"{question}: {', '.join(map(str, answers))}")
 
     # mapping the required keyword
-    question_new = df_quest_map[df_quest_map['EVIDENCE'] == question]['KEYWORD'].iloc[0]
+    question_new = df_quest_map[df_quest_map['EVIDENCE'] == question]['KEYWORD_PA'].iloc[0]
 
     # Access the list within the 'symptoms_quest_dropdown' dictionary
     existing_list = st.session_state.final_responses['symptoms_quest_dropdown']
@@ -154,9 +155,9 @@ if len(selected_medical_history) == 0:
     # handling exceptions if no questions answered
     selected_medical_history_new = ""
 else:
-    # selected_medical_history_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_medical_history[0]]['KEYWORD'].iloc[0]
+    # selected_medical_history_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_medical_history[0]]['KEYWORD_PA'].iloc[0]
     filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_medical_history)]
-    keywords_list = filtered_df['KEYWORD'].tolist()
+    keywords_list = filtered_df['KEYWORD_PA'].tolist()
     selected_medical_history_new = ', '.join(keywords_list)
 
 st.session_state.final_responses['medical'] = selected_medical_history_new
@@ -170,9 +171,9 @@ if len(selected_fam_medical_history) == 0:
     # handling exceptions if no questions answered
     selected_fam_medical_history_new = ""
 else:
-    # selected_fam_medical_history_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_fam_medical_history[0]]['KEYWORD'].iloc[0]
+    # selected_fam_medical_history_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_fam_medical_history[0]]['KEYWORD_PA'].iloc[0]
     filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_fam_medical_history)]
-    keywords_list = filtered_df['KEYWORD'].tolist()
+    keywords_list = filtered_df['KEYWORD_PA'].tolist()
     selected_fam_medical_history_new = ', '.join(keywords_list)
 
 st.session_state.final_responses['fam_medical'] = selected_fam_medical_history_new
@@ -186,9 +187,9 @@ if len(selected_personal_info) == 0:
     # handling exceptions if no questions answered
     selected_personal_info_new = "" # []
 else:
-    # selected_personal_info_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_personal_info[0]]['KEYWORD'] # .iloc[0]
+    # selected_personal_info_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_personal_info[0]]['KEYWORD_PA'] # .iloc[0]
     filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_personal_info)]
-    keywords_list = filtered_df['KEYWORD'].tolist()
+    keywords_list = filtered_df['KEYWORD_PA'].tolist()
     selected_personal_info_new = ', '.join(keywords_list)
 
 st.session_state.final_responses['personal'] = selected_personal_info_new
@@ -209,9 +210,9 @@ if st.button("Submit Personal Response"):
         st.write(f"Answer: {selected_answer}")
         
         # # mapping the required keyword
-        # selected_personal_info_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_personal_info]['KEYWORD'].iloc[0]
+        # selected_personal_info_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_personal_info]['KEYWORD_PA'].iloc[0]
         # mapping the required keyword
-        selected_question = df_quest_map[df_quest_map['EVIDENCE'] == selected_question]['KEYWORD'].iloc[0]
+        selected_question = df_quest_map[df_quest_map['EVIDENCE'] == selected_question]['KEYWORD_PA'].iloc[0]
 
         # You can add code to store responses in a database, file, or any other desired location
         st.session_state.final_responses['personal1'] = {selected_question:selected_answer}
@@ -386,7 +387,7 @@ if len(st.session_state.disease_data_M1) > 0:
     st.subheader(f"Top 3 disease predictions by both the models:")
     # creating df to display
     data = {
-        'Model_1_Bert': [st.session_state.disease_data_M1[0], st.session_state.disease_data_M1[1], st.session_state.disease_data_M1[2]],
+        'Model_1_ClinicalBERT': [st.session_state.disease_data_M1[0], st.session_state.disease_data_M1[1], st.session_state.disease_data_M1[2]],
         'Model_2_AllMini': [st.session_state.disease_data_M2[0], st.session_state.disease_data_M2[1], st.session_state.disease_data_M2[2]]
     }
     index_names = ['Label 1', 'Label 2', 'Label 3']
