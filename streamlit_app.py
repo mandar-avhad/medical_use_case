@@ -32,21 +32,33 @@ for item in data.values():
         quest_ans_dict[question_en] = possible_values
 
 # filtering the symptom question answers from this dict
-filtered_symp_quest_dict = {key: value for key, value in quest_ans_dict.items() if key in symp_quest['Symptom_Questions'].values}
+# filtered_symp_quest_dict = {key: value for key, value in quest_ans_dict.items() if key in symp_quest['Symptom_Questions'].values}
+filtered_symp_quest_dict = {df_quest_map[df_quest_map['EVIDENCE'] == key]['KEYWORD_PA'].iloc[0]: value for key, value in quest_ans_dict.items() if key in symp_quest['Symptom_Questions'].values}
+print("$$$$$$$$$$$$$$$$$")
 ##########
 # Create a list of questions to be removed
-questions_to_remove = [key for key in filtered_symp_quest_dict.keys() if key in symp_quest['Symptom_Questions'].values]
+# questions_to_remove = [key for key in filtered_symp_quest_dict.keys() if key in symp_quest['Symptom_Questions'].values]
+questions_to_remove = [key for key in filtered_symp_quest_dict.keys() if df_quest_map[df_quest_map['KEYWORD_PA'] == key]['EVIDENCE'].iloc[0] in symp_quest['Symptom_Questions'].values]
+
+merged_symp_df = pd.merge(symp_quest, df_quest_map, left_on='Symptom_Questions', right_on='EVIDENCE', how='left')
+
 # Remove the rows with questions in the list
-symp_quest = symp_quest[~symp_quest['Symptom_Questions'].isin(questions_to_remove)]
+symp_quest = merged_symp_df[~merged_symp_df['KEYWORD_PA'].isin(questions_to_remove)]
+
 #########
 
 
 # filtering the personal info question answers from this dict
-filtered_per_quest_dict = {key: value for key, value in quest_ans_dict.items() if key in personal_info['Questions'].values}
+# filtered_per_quest_dict = {key: value for key, value in quest_ans_dict.items() if key in personal_info['Questions'].values}
+filtered_per_quest_dict = {df_quest_map[df_quest_map['EVIDENCE'] == key]['KEYWORD_PA'].iloc[0]: value for key, value in quest_ans_dict.items() if key in personal_info['Questions'].values}
+
 # Create a list of questions to be removed
-questions_to_remove = [key for key in filtered_per_quest_dict.keys() if key in personal_info['Questions'].values]
+questions_to_remove = [key for key in filtered_per_quest_dict.keys() if df_quest_map[df_quest_map['KEYWORD_PA'] == key]['EVIDENCE'].iloc[0] in personal_info['Questions'].values]
+
+merged_per_df = pd.merge(personal_info, df_quest_map, left_on='Questions', right_on='EVIDENCE', how='left')
+print(merged_per_df.info(), "&&&&&&&&&&&&&&")
 # Remove the rows with questions in the list
-per_quest = personal_info[~personal_info['Questions'].isin(questions_to_remove)]
+per_quest = merged_per_df[~merged_per_df['KEYWORD_PA'].isin(questions_to_remove)]
 #########
 
 # final_responses = {}
@@ -84,7 +96,10 @@ st.session_state.final_responses['symptoms'] = selected_symptoms
 
 # Question 2: Select the questions related to symptoms
 st.header("Questions related to symptoms")
-selected_symptoms_quest = st.multiselect("Select all the applicable symptom questions:", symp_quest['Symptom_Questions'])
+# merged_df = pd.merge(symp_quest, df_quest_map, left_on='Symptom_Questions', right_on='EVIDENCE', how='left')
+selected_symptoms_quest = st.multiselect("Select all the applicable symptom questions:", symp_quest['KEYWORD_PA'])
+
+# selected_symptoms_quest = st.multiselect("Select all the applicable symptom questions:", symp_quest['Symptom_Questions'])
 
 # mapping the required keyword
 if len(selected_symptoms_quest) == 0:
@@ -106,13 +121,31 @@ if 'current_question' not in st.session_state:
     st.session_state.current_question = "Question 1"
 
 # Allow the user to select a question
-selected_question = st.selectbox("Select and answer the applicable symptom questions from the dropdown one by one:", list(filtered_symp_quest_dict.keys()))
+# selected_question = st.selectbox("Select and answer the applicable symptom questions from the dropdown one by one:", list(filtered_symp_quest_dict.keys()))
+
+####
+# temp, keyword mapping
+# Create a dictionary mapping questions to keywords
+# question_keyword_mapping = dict(zip(df_quest_map["EVIDENCE"], df_quest_map["KEYWORD_PA"]))
+
+# # Your list of questions
+# questions = list(filtered_symp_quest_dict.keys())
+
+# # Create a new list with keywords
+# keyword_list = [question_keyword_mapping.get(q, []) for q in questions]
+df_filter_symp = pd.DataFrame(filtered_symp_quest_dict.items(), columns=['Questions', 'Answers'])
+
+selected_question = st.selectbox("Select and answer the applicable symptom questions from the dropdown one by one:", df_filter_symp['Questions'])
+
+#########
 
 if selected_question != st.session_state.current_question:
     st.session_state.current_question = selected_question
 
 # Create a dropdown for selecting an answer based on the selected question
 selected_answer = st.selectbox("Select an answer:", filtered_symp_quest_dict[st.session_state.current_question])
+
+print(selected_answer, "%%%%%%%%%%%%%%%%%%%%")
 
 # Store the user's response for the current question
 if st.button("Submit Symptoms Response"):
@@ -129,12 +162,12 @@ for question, answers in st.session_state.responses.items():
     st.write(f"{question}: {', '.join(map(str, answers))}")
 
     # mapping the required keyword
-    question_new = df_quest_map[df_quest_map['EVIDENCE'] == question]['KEYWORD_PA'].iloc[0]
+    # question_new = df_quest_map[df_quest_map['EVIDENCE'] == question]['KEYWORD_PA'].iloc[0]
 
     # Access the list within the 'symptoms_quest_dropdown' dictionary
     existing_list = st.session_state.final_responses['symptoms_quest_dropdown']
     # # Add the new dictionary to the list
-    existing_list.append({question_new:answers})
+    existing_list.append({question:answers})
     
     # storing
     # st.session_state.final_responses['symptoms_quest_dropdown'] = {question:answers} 
@@ -148,7 +181,9 @@ if len(st.session_state.final_responses['symptoms_quest_dropdown']) == 0:
 
 # Question 2: Select medical history
 st.header("Medical history")
-selected_medical_history = st.multiselect("Select and answer the medical history questions applicable to you:", medical_history_data['Questions'])
+medical_history_data_keyword = pd.merge(medical_history_data, df_quest_map, left_on='Questions', right_on='EVIDENCE', how='left')
+
+selected_medical_history = st.multiselect("Select and answer the medical history questions applicable to you:", medical_history_data_keyword['KEYWORD_PA'])
 
 # mapping the required keyword
 if len(selected_medical_history) == 0:
@@ -156,15 +191,17 @@ if len(selected_medical_history) == 0:
     selected_medical_history_new = ""
 else:
     # selected_medical_history_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_medical_history[0]]['KEYWORD_PA'].iloc[0]
-    filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_medical_history)]
-    keywords_list = filtered_df['KEYWORD_PA'].tolist()
-    selected_medical_history_new = ', '.join(keywords_list)
+    # filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_medical_history)]
+    # keywords_list = filtered_df['KEYWORD_PA'].tolist()
+    # selected_medical_history_new = ', '.join(keywords_list)
+    selected_medical_history_new = ', '.join(selected_medical_history)
 
 st.session_state.final_responses['medical'] = selected_medical_history_new
 
 # Question 3: Select family medical history
 st.header("Family medical history")
-selected_fam_medical_history = st.multiselect("Select and answer the family medical history questions applicable:", fam_medical_history_data['Questions'])
+fam_medical_history_keyword = pd.merge(fam_medical_history_data, df_quest_map, left_on='Questions', right_on='EVIDENCE', how='left')
+selected_fam_medical_history = st.multiselect("Select and answer the family medical history questions applicable:", fam_medical_history_keyword['KEYWORD_PA'])
 
 # mapping the required keyword
 if len(selected_fam_medical_history) == 0:
@@ -172,15 +209,17 @@ if len(selected_fam_medical_history) == 0:
     selected_fam_medical_history_new = ""
 else:
     # selected_fam_medical_history_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_fam_medical_history[0]]['KEYWORD_PA'].iloc[0]
-    filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_fam_medical_history)]
-    keywords_list = filtered_df['KEYWORD_PA'].tolist()
-    selected_fam_medical_history_new = ', '.join(keywords_list)
+    # filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_fam_medical_history)]
+    # keywords_list = filtered_df['KEYWORD_PA'].tolist()
+    # selected_fam_medical_history_new = ', '.join(keywords_list)
+    selected_fam_medical_history_new = ', '.join(selected_fam_medical_history)
 
 st.session_state.final_responses['fam_medical'] = selected_fam_medical_history_new
 
 # Question 4: Select personal info
 st.header("Personal information")
-selected_personal_info = st.multiselect("Select and answer the personal information questions applicable to you:", per_quest['Questions'])
+# per_quest_keyword = pd.merge(per_quest, df_quest_map, left_on='Questions', right_on='EVIDENCE', how='left')
+selected_personal_info = st.multiselect("Select and answer the personal information questions applicable to you:", per_quest['KEYWORD_PA'])
 
 # mapping the required keyword
 if len(selected_personal_info) == 0:
@@ -188,9 +227,10 @@ if len(selected_personal_info) == 0:
     selected_personal_info_new = "" # []
 else:
     # selected_personal_info_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_personal_info[0]]['KEYWORD_PA'] # .iloc[0]
-    filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_personal_info)]
-    keywords_list = filtered_df['KEYWORD_PA'].tolist()
-    selected_personal_info_new = ', '.join(keywords_list)
+    # filtered_df = df_quest_map[df_quest_map['EVIDENCE'].isin(selected_personal_info)]
+    # keywords_list = filtered_df['KEYWORD_PA'].tolist()
+    # selected_personal_info_new = ', '.join(keywords_list)
+    selected_personal_info_new = ', '.join(selected_personal_info)
 
 st.session_state.final_responses['personal'] = selected_personal_info_new
 
@@ -212,7 +252,7 @@ if st.button("Submit Personal Response"):
         # # mapping the required keyword
         # selected_personal_info_new = df_quest_map[df_quest_map['EVIDENCE'] == selected_personal_info]['KEYWORD_PA'].iloc[0]
         # mapping the required keyword
-        selected_question = df_quest_map[df_quest_map['EVIDENCE'] == selected_question]['KEYWORD_PA'].iloc[0]
+        # selected_question = df_quest_map[df_quest_map['EVIDENCE'] == selected_question]['KEYWORD_PA'].iloc[0]
 
         # You can add code to store responses in a database, file, or any other desired location
         st.session_state.final_responses['personal1'] = {selected_question:selected_answer}

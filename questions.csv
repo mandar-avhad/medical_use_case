@@ -6,9 +6,6 @@
 5,Do you feel pain somewhere?,10
 6,Does the pain radiate to another location?,10
 7,Have you had a cold in the last 2 weeks?,8
-8,How fast did the pain appear?,10
-9,How intense is the pain?,10
-10,How precisely is the pain located?,10
 11,Are your symptoms worse when lying down and alleviated while sitting up?,3
 12,Are your symptoms worse when lying down and alleviated while sitting up?,10
 13,Do you have bouts of choking or shortness of breath that wake you up at night?,1
@@ -16,10 +13,7 @@
 15,Where is the swelling located?,50
 16,Do you have greenish or yellowish nasal discharge?,11
 17,Do your lesions peel off?,16
-18,How intense is the pain caused by the rash?,18
-19,How severe is the itching?,19
 20,Is the lesion (or are the lesions) larger than 1cm?,16
-21,Is the rash swollen?,18
 22,What color is the rash?,18
 23,Where is the affected region located?,18
 24,Do you feel so tired that you are unable to do your usual activities or are you stuck in your bed all day long?,20
