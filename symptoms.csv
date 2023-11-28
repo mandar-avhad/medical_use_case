@@ -1,13 +1,13 @@
 Symptom_ID,Symptoms
-1,Shortness of breath
-2,wheezing
-3,Cough
-4,"Muscle spasm, soreness in neck"
+1,shortness of breath
+2,wheezing sound while exhaling 
+3,cough
+4,"muscle spasms, soreness in neck"
 5,fever
 6,"nasal congestion, runny nose"
-7,suffocation
+7,"feels choking, suffocating"
 8,cold
-9,sweating
+9,increased sweating
 10,pain
 11,nasal discharge
 12,lost sense of smell
@@ -55,13 +55,17 @@ Symptom_ID,Symptoms
 54,black stools
 55,vomitting of blood
 56,temporary stopping of breathing while sleeping
-57,excessive tears
-58,excessive saliva
-59,bleeding/bruising
-60,unintentional/involuntary weight loss
+57,eyes produce excessive tears
+58,excessive or more saliva
+59,bleeding or bruising
+60,unintentional or involuntary weight loss
 61,weight gain
-62,difficulty articulating words/speaking
+62,difficulty articulating words or speaking
 63,anxiety
 64,dark urine
 65,feeling of detached from body
 66,cheeks suddenly turning red
+67,difficulty breathing
+68,non-restful sleep
+69,increase in stool frequency
+70,redness problems on skin
