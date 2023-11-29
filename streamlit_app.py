@@ -549,6 +549,26 @@ if len(st.session_state.disease_data_M1) > 0:
 
         st.success("Data saved to CSV file 'verify_predictions.csv'")
         
+        ##################
+        # saving data to db
+        import pyodbc
+        import pandas as pd
+        from urllib import parse
+        from sqlalchemy import create_engine
+        from sqlalchemy import text
+
+        # db read, write functions
+        def database_write(dataframe, table_name):
+            sql_conn_str = "Driver={ODBC Driver 17 for SQL Server};Server=tcp:sqldiagnoseme.database.windows.net,1433;Database=sql-db-diagnoseme;Uid=sqladmin;Pwd=Themathcompany@123;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+            params = parse.quote_plus(sql_conn_str)
+            engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" %params, future=True)
+            dataframe.to_sql(table_name, engine, if_exists='append', index=False)
+            print("Data writing to database is completed!!!")
+
+        database_write(df, "results_streamlit")
+        st.success("Data writing to database is completed!!!")
+        ##################
+
         # Downloading the csv data
         @st.cache_data
         def convert_df(df):
