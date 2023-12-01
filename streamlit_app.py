@@ -331,7 +331,25 @@ final_symptoms = symp_quest.split(', ')
 # Append the new_symptoms
 symptom_dict['symptoms'] += final_symptoms
 
-formatted_string_1 = "AGE:{" + str(data['AGE']) + "} | SEX:{" + data['SEX'] + "} | Symptoms are:{" + ', '.join(symptom_dict['symptoms']) + "} | Medical History is:{" + data['medical'] + "} | Personal Information is:{" + data['personal'] + "} | Family Medical History is:{" + data['fam_medical'] + "} | "#  | Patient travelled to:{" + data['personal1']['travelled in last 4 weeks to'] + "}"
+# processing symptom_dict list in required string format
+symptoms_temp = symptom_dict['symptoms']
+filtered_symptoms = list(filter(None, symptoms_temp))
+symptom_dict['symptoms'] = ', '.join(filtered_symptoms)
+
+# formatted_string_1 = "AGE:{" + str(data['AGE']) + "} | SEX:{" + data['SEX'] + "} | Symptoms are:{" + ', '.join(symptom_dict['symptoms']) + "} | Medical History is:{" + data['medical'] + "} | Personal Information is:{" + data['personal'] + "} | Family Medical History is:{" + data['fam_medical'] + "} | "#  | Patient travelled to:{" + data['personal1']['travelled in last 4 weeks to'] + "}"
+
+# if unanswered quest, not including them in model input string
+str_1 = {}
+str_1['AGE'] = data['AGE']
+str_1['SEX'] = data['SEX']
+str_1['Symptoms are'] = symptom_dict['symptoms']
+str_1['Medical History is'] = data['medical']
+str_1['Personal Information is'] = data['personal']
+str_1['Family Medical History is'] = data['fam_medical']
+
+filtered_data = {key: value for key, value in str_1.items() if value != "" and value != ['']}
+# Format the string
+formatted_string_1 = " | ".join([f"{key}:{{{value}}}" for key, value in filtered_data.items()]) + " | "
 
 
 if 'personal1' in data and 'travelled in last 4 weeks to' in data['personal1']:
